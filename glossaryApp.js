@@ -294,7 +294,7 @@ function dictionaryText(value,currentId=0){
    if(hit.index>cursor)fragment.append(document.createTextNode(text.slice(cursor,hit.index)));
    const button=document.createElement('button');
    button.type='button';button.className='dictionary-link';button.textContent=hit.match.text;
-   button.addEventListener('click',event=>Glossary.openDictionary(hit.match.term.id,event));
+   button.dataset.dictionaryId=hit.match.term.id;
    fragment.append(button);cursor=hit.index+hit.match.text.length;
   }
   if(cursor<text.length)fragment.append(document.createTextNode(text.slice(cursor)));
@@ -641,6 +641,7 @@ function checkThreeChoice(){const term=currentTerm();if(!q[term.id]){showStatusM
 function reverseUnderstood(){const term=currentTerm(),key=stateKey(term),old=termState(term)||{};learning[key]={...old,reverseUnderstood:true,reverseUnderstoodAt:dateTime()};saveLearning();reverseRevealed=true;renderLearningCard()}
 const flashNextOriginal=flashNext;
 flashNext=function(){if(reverseMode)reverseRevealed=false;flashNextOriginal()}
+document.addEventListener('click',event=>{const link=event.target.closest('.dictionary-link[data-dictionary-id]');if(!link)return;event.preventDefault();event.stopPropagation();openDictionary(link.dataset.dictionaryId,event)},true);
 document.addEventListener('click',event=>{const link=event.target.closest('a[href]');if(!link)return;const saved={reason:'linked-page',screen,scrollY:window.scrollY};if(screen==='status-list'){const existing=JSON.parse(sessionStorage.getItem(VIEW_STATE_KEY)||'null');saved.status=existing?.status||Object.keys(states).find(status=>listTerms.some(term=>statusBucket(term)===status))}saveViewState(saved)},true);
 globalThis.Glossary={home:renderHome,startFlashcards,startReverse,showRelated,openRelated,checkThreeChoice,reverseUnderstood,toggleFlashcard,flashAdvance,flashNext,flashPrevious,advanceFlashCard,selectFlashCategory,searchTermNames,openSearchedTerm,exportBackup,importBackup,toggleBookmark,removeBookmark,toggleTodayBookmark,openTodayBookmarks(event){event?.preventDefault();event?.stopPropagation();renderTodayBookmarks()},assessFlash,showFlashHint,showFlashAnswer,openBookmark:renderBookmark,openDictionary,dictionaryBack,dictionaryToCard,dictionaryToQuiz,back(){if(restoreDictionaryReturn())return;if(screen!=='home')exitCurrent()},startMode,startStatus,startQuizResult,chooseToday,markGuess,markUnable,overrideToday,setTodayAssessment,assess,nextTerm,previousTerm,resetLearning,nextTodaySet,exitSession:exitCurrent,startCategoryWeak};
 const launchParams=new URLSearchParams(location.search),launchCard=Number(launchParams.get('card')),launchQuiz=Number(launchParams.get('quiz'));
