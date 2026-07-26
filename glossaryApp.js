@@ -2,7 +2,7 @@
 'use strict';
 const data=globalThis.GLOSSARY_DATA,quizData=globalThis.GLOSSARY_QUIZ_DATA,app=document.getElementById('app'),q=quizData?.questions;
 if(!data||!quizData||!app)return;
-// Version 3.0.35: トップの用語名検索を用語カード枠の外側へ移設。
+// Version 3.0.36: トップの用語名検索を用語カード枠の外側へ移設。
 {
 const publicHealthCategories=new Set(['公衆衛生','地域保健法','健康増進法','消費者基本法']);
 const publicHealthQuestions=new Map(data.terms.filter(term=>publicHealthCategories.has(term.category)&&q[term.id]).map(term=>[Number(term.id),JSON.parse(JSON.stringify(q[term.id]))]));
@@ -105,7 +105,7 @@ set(671,'感染症の症状を呈しているものの、診断がまだ確定�
 set(672,'感染症の病原体を保有しているが、その感染症の症状を呈していない者はどれか。','無症状病原体保有者',['患者','疑似症患者']);
 set(674,'医師が感染症患者などを診断した際、感染症法に基づいて行う届出はどれか。','発生届',['入院届','退院届']);
 set(675,'感染症患者などを診断した者に、対象となる感染症の届出を求める義務はどれか。','医師の届出義務',['感染症指定医療機関の報告義務','都道府県知事の通知義務']);
-// Version 3.0.76: 消毒法82問を、同じ論点の用語から選ぶ3択へ全面改稿。
+// Version 3.0.77: 消毒法82問を、同じ論点の用語から選ぶ3択へ全面改稿。
 // 正答前に用語名を示さず、定義・作用・対象から判断する形式とする。
 const preventionGroups=[
  [115,116,117,126,132],
@@ -213,7 +213,7 @@ for(const id of [128,130,131,133,135,168,169,170,171,206]){
 for(const id of [665,666,667,668,669,670,671,672,674,675])q[id].reverseLookup=true;
 for(const term of data.terms)if(term.category==='消毒法'&&q[term.id])q[term.id].reverseLookup=true;
 for(const [id,item] of publicHealthQuestions){q[id]=item;q[id].reverseLookup=true}
-// Version 3.0.84: 最終内容監査で、論点・単位が不揃いだった消毒法の誤答を修正。
+// Version 3.0.85: 最終内容監査で、論点・単位が不揃いだった消毒法の誤答を修正。
 set(211,'別名を2-プロパノールといい、消毒に用いられるアルコールはどれか。','イソプロパノール',['エタノール','メタノール']);
 set(213,'塩素系消毒薬の水溶液中で、殺菌作用の中心となる成分はどれか。','次亜塩素酸',['次亜塩素酸イオン','塩化物イオン']);
 set(215,'ヨウ素をアルコールに溶かした消毒薬はどれか。','ヨードチンキ',['ポビドンヨード','次亜塩素酸ナトリウム']);
@@ -248,16 +248,16 @@ set(279,'脂質性の膜をもたないウイルスはどれか。','ノンエ�
 set(281,'抗菌薬などの薬剤が効きにくくなった細菌はどれか。','耐性菌',['一般細菌','栄養型細菌']);
 set(283,'器具が接触する部位の感染リスクに応じて、必要な処理水準を選ぶ分類はどれか。','スポルディング分類',['感染経路別分類','病原体別分類']);
 set(284,'消毒薬・熱・紫外線などが対象物へ実際に作用する時間はどれか。','接触時間',['消毒時間','保管時間']);
-// Version 3.0.82: 実表示も全問3択とし、選択肢末尾の句点を除去する。
+// Version 3.0.83: 実表示も全問3択とし、選択肢末尾の句点を除去する。
 for(const item of Object.values(q)){
  if(!item)continue;
  item.correct=String(item.correct||'').replace(/[。．]+$/u,'');
  item.distractors=(item.distractors||[]).slice(0,2).map(value=>String(value||'').replace(/[。．]+$/u,''));
 }
-data.version='3.0.102';
-quizData.version='3.0.102';
+data.version='3.0.105';
+quizData.version='3.0.105';
 }
-const APP_VERSION='3.0.102',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
+const APP_VERSION='3.0.105',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
 {const s=document.createElement('style');s.textContent='#dictionaryContent section > div[data-multiline]{text-align:left}#dictionaryContent section > ul[data-multiline]{text-align:left}.dictionary-sheet .exam-list{margin:0;padding-left:0;list-style:none}.dictionary-sheet .exam-list .exam-bullet{display:flex;align-items:flex-start;text-align:left}.dictionary-sheet .exam-list .exam-bullet>span{flex:0 0 1em}.dictionary-sheet .exam-list .exam-plain{text-align:center}';document.head.append(s)}
 const flashcardTerms=data.terms.filter(term=>!(term.sourceItems||[]).some(item=>String(item.file||'').includes('感染症法関連_感染症_114用語')));
 const termById=new Map(data.terms.map(term=>[term.id,term]));
