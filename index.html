@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>理容師国家試験 用語集 Version 3.0.124</title>
+<title>理容師国家試験 用語集 Version 3.0.126</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=3.0.124">
+<link rel="stylesheet" href="style.css?v=3.0.126">
 <style>
 :root{
 --font-lv1:22px;--font-lv2:20px;--font-lv3:18px;--font-lv4:16px;--font-lv5:14px;
@@ -427,14 +427,38 @@
 }
 </style>
 
+
+<style>
+.today-bookmark-list{display:grid;gap:10px;overflow:visible!important}
+.today-bookmark-list-item{display:grid;grid-template-columns:minmax(0,1fr) auto 18px;gap:10px;align-items:center;width:100%;min-height:68px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);text-align:left;font:inherit;cursor:pointer}
+.today-bookmark-list-item>span:first-child{min-width:0;font-size:var(--font-lv4);line-height:1.45;overflow-wrap:anywhere}
+.today-bookmark-list-item small{display:grid;justify-items:end;gap:2px;color:var(--muted);font-size:var(--font-lv5);line-height:1.35;white-space:nowrap}
+.today-bookmark-list-item>span:last-child{color:var(--blue);font-size:var(--font-lv2);line-height:1}
+@media(max-width:440px){.today-bookmark-list-item{grid-template-columns:minmax(0,1fr) minmax(82px,32%) 15px;padding:11px 12px}.today-bookmark-list-item small{white-space:normal;text-align:right}}
+</style>
+
+
+<style>
+.learning-bookmark-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px;padding:5px;border:1px solid var(--line);border-radius:13px;background:#eef3f9}
+.learning-bookmark-mode button{min-height:44px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:inherit;font-size:var(--font-lv4)}
+.learning-bookmark-mode button.selected{background:#fff;color:var(--navy);box-shadow:0 2px 7px rgba(16,35,63,.12)}
+.learning-bookmark-list{display:grid;gap:10px;overflow:visible!important}
+.learning-bookmark-list-item{display:grid;grid-template-columns:minmax(0,1fr) auto 18px;gap:10px;align-items:center;width:100%;min-height:66px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);text-align:left;font:inherit;cursor:pointer}
+.learning-bookmark-list-item>span:first-child{min-width:0;font-size:var(--font-lv4);line-height:1.45;overflow-wrap:anywhere}
+.learning-bookmark-list-item small{color:var(--muted);font-size:var(--font-lv5);line-height:1.35;text-align:right}
+.learning-bookmark-list-item>span:last-child{color:var(--blue);font-size:var(--font-lv2);line-height:1}
+.learning-bookmark-session-label{margin:0 0 12px;padding:9px 12px;border:1px solid #e2c6a8;border-radius:999px;background:#fffaf5;color:#8b4b14;text-align:center;font-size:var(--font-lv5)}
+@media(max-width:440px){.learning-bookmark-list-item{grid-template-columns:minmax(0,1fr) minmax(76px,30%) 15px;padding:11px 12px}.learning-bookmark-list-item small{white-space:normal}}
+</style>
+
 </head>
 <body>
 <nav class="g-nav"><button id="glossaryBack" class="header-nav-button" type="button" onclick="Glossary.back()" aria-label="戻る" hidden>‹</button><span class="g-title">理容師国家試験 用語集</span><button id="glossaryHome" class="header-nav-button" type="button" onclick="Glossary.home()" aria-label="ホームへ戻る" hidden>⌂</button></nav>
 <main class="page" id="app"></main>
-<script src="glossaryData.js?v=3.0.124"></script>
-<script src="glossaryQuizData.js?v=3.0.124"></script>
-<script src="infectionDiseaseData.js?v=3.0.124"></script>
-<script src="glossaryApp.js?v=3.0.124"></script>
+<script src="glossaryData.js?v=3.0.126"></script>
+<script src="glossaryQuizData.js?v=3.0.126"></script>
+<script src="infectionDiseaseData.js?v=3.0.126"></script>
+<script src="glossaryApp.js?v=3.0.126"></script>
 <script>
 if('serviceWorker' in navigator){
  let controlled=Boolean(navigator.serviceWorker.controller),reloading=false;
