@@ -459,6 +459,34 @@
 .status-learning-list-item small{display:grid;justify-items:end;gap:2px;color:var(--muted);font-size:var(--font-lv5);line-height:1.35;white-space:nowrap}
 .status-learning-list-item>span:last-child{color:var(--blue);font-size:var(--font-lv2);line-height:1}
 @media(max-width:440px){.status-learning-list-item{grid-template-columns:minmax(0,1fr) minmax(82px,32%) 15px;padding:11px 12px}.status-learning-list-item small{white-space:normal;text-align:right}}
+
+.today-study-card .quiz-choice-row{position:relative;margin:7px 0}
+.today-study-card .quiz-choice-row .quiz-choice{margin:0;padding-right:52px}
+.today-study-card .quiz-choice-dictionary{position:absolute;z-index:2;right:5px;top:50%;display:grid;place-items:center;width:42px;height:42px;padding:0;transform:translateY(-50%);border:0;border-left:1px solid rgba(255,255,255,.46);border-radius:0 12px 12px 0;background:transparent;color:inherit;font:inherit;font-size:17px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.today-study-card .quiz-choice-row.correct .quiz-choice-dictionary,.today-study-card .quiz-choice-row.wrong .quiz-choice-dictionary{border-left-color:rgba(32,41,56,.16);color:var(--text)}
+.today-study-card .quiz-choice-dictionary:active{background:rgba(255,255,255,.18)}
+.text-enlarged .today-study-card .quiz-choice-dictionary{font-size:17px}
+</style>
+
+
+<style>
+/* 辞書モーダル：見た目は維持し、本文領域だけを画面内でスクロール */
+.dictionary-sheet{
+  display:flex;
+  flex-direction:column;
+  max-height:min(82vh,680px);
+}
+.dictionary-toolbar{
+  flex:0 0 54px;
+}
+.dictionary-sheet-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
 </style>
 
 </head>
@@ -468,7 +496,7 @@
 <script src="glossaryData.js?v=3.0.141"></script>
 <script src="glossaryQuizData.js?v=3.0.141"></script>
 <script src="infectionDiseaseData.js?v=3.0.141"></script>
-<script src="glossaryApp.js?v=3.0.141"></script>
+<script src="glossaryApp.js?v=3.0.141-choice-books-all"></script>
 <script>
 if('serviceWorker' in navigator){
  let controlled=Boolean(navigator.serviceWorker.controller),reloading=false;

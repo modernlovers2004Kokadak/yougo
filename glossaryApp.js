@@ -248,6 +248,83 @@ set(279,'脂質性の膜をもたないウイルスはどれか。','ノンエ�
 set(281,'抗菌薬などの薬剤が効きにくくなった細菌はどれか。','耐性菌',['一般細菌','栄養型細菌']);
 set(283,'器具が接触する部位の感染リスクに応じて、必要な処理水準を選ぶ分類はどれか。','スポルディング分類',['感染経路別分類','病原体別分類']);
 set(284,'消毒薬・熱・紫外線などが対象物へ実際に作用する時間はどれか。','接触時間',['消毒時間','保管時間']);
+// 混同注意を利用した誤答候補の精度向上。
+// 感染症法・感染症予防は現状を維持し、用語名を選ぶ問題だけを対象とする。
+const distractorExcludedCategories=new Set(['感染症法','感染症予防']);
+const quizTermsByName=new Map(data.terms.filter(term=>Number(term.id)>0).map(term=>[term.name,term]));
+const uniqueValues=values=>values.filter((value,index,array)=>value&&array.indexOf(value)===index);
+const mixupPeerNames=term=>uniqueValues((term.mixup||[]).flatMap(group=>(group.terms||[]).map(row=>row.name)).filter(name=>name!==term.name&&quizTermsByName.has(name)));
+const sameCategoryCandidateNames=term=>data.terms
+ .filter(candidate=>Number(candidate.id)>0&&candidate.category===term.category&&candidate.id!==term.id&&q[candidate.id])
+ .map(candidate=>candidate.name);
+const distractorTrialIds=new Set([229,231,232,233,417,418,419,426,427,434,436,476,477,478,479,480,506,507,529,530,551,555,567,570,571,572,583,589,623,624,625,688]);
+for(const term of data.terms){
+ const item=q[term.id];
+ if(!item||!distractorTrialIds.has(Number(term.id))||distractorExcludedCategories.has(term.category)||item.correct!==term.name)continue;
+ const preferred=mixupPeerNames(term);
+ if(!preferred.length)continue;
+ const existing=(item.distractors||[]).filter(name=>quizTermsByName.get(name)?.category===term.category);
+ const fallback=sameCategoryCandidateNames(term);
+ const candidates=uniqueValues([...preferred,...existing,...fallback]).filter(name=>name!==term.name);
+ if(candidates.length>=2)item.distractors=candidates.slice(0,2);
+}
+// 今日の10語：誤答候補の品質を構造的に改善する。
+// 感染症法・感染症予防は対象外。明確な混同群または同種語が2件以上ある場合だけ置き換える。
+const explicitChoiceGroups=[
+ ['健康寿命','平均寿命','平均余命'],
+ ['保湿剤','湿潤剤','エモリエント剤','防湿剤'],
+ ['紫外線吸収剤','紫外線散乱剤','酸化防止剤'],
+ ['シェービングブラシ','ラザー','シェービングフォーム'],
+ ['バックブラシ','テンション','オーバーダイレクション'],
+ ['健康相談','健康診査','保健指導','健康教育'],
+ ['グラデーション','レイヤー','ワンレングス'],
+ ['アップステム','ダウンステム','オーバーダイレクション'],
+ ['トラベリングガイド','ステーショナリーガイド','ガイド'],
+ ['シザーズ','セニングシザーズ','クリッパー'],
+ ['パーマネントウェーブ','ヘアカラー技術','ブリーチ技術'],
+ ['PG','BG','グリセリン'],
+ ['還元剤','酸化剤','脱色剤'],
+ ['陰イオン界面活性剤','陽イオン界面活性剤','非イオン界面活性剤','両性界面活性剤']
+];
+const explicitChoicePeers=new Map();
+for(const group of explicitChoiceGroups)for(const name of group)explicitChoicePeers.set(name,group.filter(peer=>peer!==name&&quizTermsByName.has(peer)));
+const choiceSuffixes=['ブラシ','寿命','余命','技術','事業','相談','診査','教育','指導','剤','薬','法','率','指数','対策','感染','消毒','滅菌','洗浄','区域','管理','細胞','組織','層','腺','筋','期','波','光線','器','装置','方法','分類','濃度','時間','温度','湿度','反応','結合','成分','色素','染料','ウェーブ','カット','ガイド'];
+const choiceType=name=>choiceSuffixes.find(suffix=>String(name).endsWith(suffix))||'';
+for(const term of data.terms){
+ const item=q[term.id];
+ if(!item||distractorExcludedCategories.has(term.category)||item.correct!==term.name)continue;
+ const explicit=explicitChoicePeers.get(term.name)||[];
+ const mixed=mixupPeerNames(term);
+ const type=choiceType(term.name);
+ const typed=type?sameCategoryCandidateNames(term).filter(name=>choiceType(name)===type):[];
+ const strong=uniqueValues([...explicit,...mixed,...typed]).filter(name=>name!==term.name);
+ if(strong.length<2)continue;
+ const existing=(item.distractors||[]).filter(name=>quizTermsByName.has(name));
+ item.distractors=uniqueValues([...strong,...existing]).slice(0,2);
+}
+// 個別監査で、問題文と正答語の重複・上位概念と下位概念の混在が確認できた問題を修正。
+if(q[600])Object.assign(q[600],{
+ question:'特定の光エネルギーを取り込み、熱などへ変換して皮膚や製品を保護する成分。この説明に当てはまる用語はどれか。',
+ correct:'紫外線吸収剤',distractors:['紫外線散乱剤','酸化防止剤'],reverseLookup:true
+});
+if(q[541])Object.assign(q[541],{
+ question:'水分を引き寄せて保持し、乾燥を防ぐために配合する成分。この説明に当てはまる用語はどれか。',
+ correct:'湿潤剤',distractors:['保湿剤','エモリエント剤'],reverseLookup:true
+});
+if(q[643])Object.assign(q[643],{
+ question:'せっけんを泡立て、その泡を皮膚へ塗布するために用いる道具はどれか。',
+ correct:'シェービングブラシ',distractors:['ラザー','シェービングフォーム'],reverseLookup:true
+});
+if(q[650])Object.assign(q[650],{
+ question:'毛髪を生え方と反対方向へとかし、根元にボリュームや支えをつくる操作はどれか。',
+ correct:'バックブラシ',distractors:['テンション','オーバーダイレクション'],reverseLookup:true
+});
+if(q[303])Object.assign(q[303],{
+ question:'保健事業について正しい説明はどれか。',
+ correct:'住民の健康を守るため、健康相談、保健指導、健康診査、健康教育などを行う事業',
+ distractors:['個人の相談内容に応じて、生活習慣や健康管理の方法を助言する活動','健康状態を把握するため、診察や検査などを行う活動'],
+ reverseLookup:false
+});
 // Version 3.0.83: 実表示も全問3択とし、選択肢末尾の句点を除去する。
 for(const item of Object.values(q)){
  if(!item)continue;
@@ -266,6 +343,23 @@ const countLines=text=>String(text||'').split('<br>').length;
 const multilineAttr=text=>countLines(text)>1?' data-multiline':'';
 for(const term of dictionaryTerms)term.dictionary={...(term.dictionary||{}),linkTarget:true,cardId:term.id,quizIds:q?.[term.id]?[term.id]:[]};
 const dictionaryMatches=dictionaryTerms.flatMap(term=>[term.name,...(term.aliases||[])].filter(Boolean).map(text=>({text:String(text),term}))).sort((a,b)=>b.text.length-a.text.length);
+const normalizeChoiceDictionaryText=value=>String(value||'').normalize('NFKC').replace(/[。．]+$/u,'').replace(/^[①②③1-3１-３][\.．、:：\s]*/u,'').replace(/\s+/g,'').toLocaleLowerCase('ja');
+const choiceDictionaryTerms=new Map();
+for(const term of dictionaryTerms){
+ for(const value of [term.name,...(term.aliases||[])]){const key=normalizeChoiceDictionaryText(value);if(key&&!choiceDictionaryTerms.has(key))choiceDictionaryTerms.set(key,term)}
+}
+function choiceDictionaryTerm(value,fallbackTerm=null){
+ const normalized=normalizeChoiceDictionaryText(value);
+ const exact=choiceDictionaryTerms.get(normalized);
+ if(exact)return exact;
+ let best=null;
+ for(const match of dictionaryMatches){
+  const key=normalizeChoiceDictionaryText(match.text);
+  if(!key||key.length<2||!normalized.includes(key))continue;
+  if(!best||key.length>best.key.length)best={key,term:match.term};
+ }
+ return best?.term||fallbackTerm||null;
+}
 let dictionaryReturn=null,dictionaryHistory=[],dictionaryHistoryIndex=-1,dictionaryOriginScrollY=0;
 function dictionaryText(value,currentId=0){
  const template=document.createElement('template');
@@ -609,7 +703,7 @@ function exportBackup(){flushLearning();const payload={format:'riyoshi-glossary-
 async function importBackup(file){if(!file)return;try{const payload=JSON.parse(await file.text());if(!payload||payload.format!=='riyoshi-glossary-backup'||payload.version!==1||!payload.learning||typeof payload.learning!=='object'||Array.isArray(payload.learning))throw new Error('形式が一致しません');if(payload.todayBookmarks!==undefined&&!Array.isArray(payload.todayBookmarks))throw new Error('今日の10語ブックマークの形式が一致しません');const restoredTodayBookmarks=new Set((payload.todayBookmarks||[]).map(Number).filter(id=>Number.isInteger(id)&&q[id]));if(!confirm('現在の学習履歴を、選択したバックアップ内容で置き換えます。よろしいですか？'))return;learning=payload.learning;todayBookmarks=restoredTodayBookmarks;flushLearning();saveTodayBookmarks();normalizedKeys.clear();renderHome();alert('バックアップを読み込みました。')}catch(error){alert(`バックアップを読み込めませんでした。${error?.message?' '+error.message:''}`)}}
 function todayResponse(term=currentTerm()){if(todayAnswers.has(term.id))return todayAnswers.get(term.id);const question=quizData.questions?.[term.id],distractors=question?shuffle([...question.distractors]).slice(0,2):[],options=question?shuffle([{text:question.correct,correct:true},...distractors.map(text=>({text,correct:false}))]):[],response={question:question?.question||'',source:question?.source||'',options,hold:!question,attempts:[],completed:false,autoStatus:'',currentStatus:'',counted:false,roundCounted:false,originalResult:'',finalResult:'',unable:false,unableTiming:'',recorded:false};todayAnswers.set(term.id,response);persistTodaySession();return response}
 function performanceHtml(term,response){const perf=performanceFor(term),s=termState(term),recent=statusBucket(term),recentHtml=states[recent]?`<span class="recent-assessment ${recent}"><span>${recent==='safe'?'✓':recent==='caution'?'△':'×'}</span>${states[recent]}</span>`:'未評価',label={safe:'安心候補',caution:'勘',danger:'無理',none:'データなし'}[perf.level],final={safe:'安心相当',caution:'勘相当',danger:'無理相当',unlearned:'未学習'}[finalPriority(term)],notice=response.unable?'自力回答不能として記録されています':s?.status==='safe'&&['caution','danger'].includes(perf.level)?'実績では要注意':['caution','danger','unable'].includes(s?.status)&&perf.level==='safe'?'実績は改善傾向です':'';return `<details class="performance-details" open><summary>正答実績</summary><div>自己評価：${states[statusBucket(term)]||'未設定'}<br>実力評価：${label}<br><span class="recent-assessment-row">直近：${recentHtml}</span><br>1回目正解率：${perf.rate===null?'未算出':perf.rate+'％'}<br>復習優先度：${final}${notice?`<br><span class="performance-notice">${notice}</span>`:''}</div></details>`}
-function todayQuizHtml(term){const response=todayResponse(term),wrong=new Set(response.attempts.filter(index=>!response.options[index].correct)),hideGivenTerm=quizData.questions?.[term.id]?.reverseLookup&&!response.completed;return `${hideGivenTerm?'<style>.today-study-card>.term-front h2{font-size:0}.today-study-card>.term-front h2::after{content:"用語を選んでください";font-size:var(--font-lv1)}.today-study-card>.term-front .today-term-reading{display:none}.today-study-card>.term-front>div::after{content:"説明を読んで、3択から選択";display:block;margin-top:7px;color:#66738a;font-size:var(--font-exception-caption);line-height:1.4}</style>':''}<section class="quiz today-quiz"><h3>${response.completed?dictionaryText(response.question,term.id):esc(response.question)}</h3>${response.options.map((option,index)=>`<button class="quiz-choice ${wrong.has(index)?'wrong ':''}${response.completed&&option.correct?'correct ':''}" onclick="Glossary.chooseToday(${index})" ${(response.completed||wrong.has(index))?'disabled':''}>${index+1}．${esc(option.text)}</button>`).join('')}<div class="certainty-actions">${Object.entries(states).map(([key,label])=>`<button class="${key}${response.currentStatus===key?' selected':''}" onclick="Glossary.setTodayAssessment('${key}')"><span class="certainty-icon">${key==='safe'?'✓':key==='caution'?'△':'×'}</span>${label}</button>`).join('')}</div>${response.completed||response.assessmentRevealed?`<div class="term-back">${quizTermFields(term,true)}${q[term.id]?.explanation?`<div class="term-field"><div class="term-label">解説</div><div class="term-value">${dictionaryText(q[term.id].explanation,term.id)}</div></div>`:''}${sourceBlock(term)}</div>${performanceHtml(term,response)}`:''}</section>`}
+function todayQuizHtml(term){const response=todayResponse(term),wrong=new Set(response.attempts.filter(index=>!response.options[index].correct)),hideGivenTerm=quizData.questions?.[term.id]?.reverseLookup&&!response.completed;return `${hideGivenTerm?'<style>.today-study-card>.term-front h2{font-size:0}.today-study-card>.term-front h2::after{content:"用語を選んでください";font-size:var(--font-lv1)}.today-study-card>.term-front .today-term-reading{display:none}.today-study-card>.term-front>div::after{content:"説明を読んで、3択から選択";display:block;margin-top:7px;color:#66738a;font-size:var(--font-exception-caption);line-height:1.4}</style>':''}<section class="quiz today-quiz"><h3>${response.completed?dictionaryText(response.question,term.id):esc(response.question)}</h3>${response.options.map((option,index)=>{const dictionaryTerm=choiceDictionaryTerm(option.text,term),stateClass=`${wrong.has(index)?'wrong ':''}${response.completed&&option.correct?'correct ':''}`;return `<div class="quiz-choice-row ${stateClass}"><button class="quiz-choice quiz-choice-answer ${stateClass}" onclick="Glossary.chooseToday(${index})" ${(response.completed||wrong.has(index))?'disabled':''}>${index+1}．${esc(option.text)}</button><button type="button" class="quiz-choice-dictionary" onclick="Glossary.openDictionary(${dictionaryTerm.id},event)" aria-label="${esc(dictionaryTerm.name)}の用語カードを開く" title="用語カード"><span aria-hidden="true">📖</span></button></div>`}).join('')}<div class="certainty-actions">${Object.entries(states).map(([key,label])=>`<button class="${key}${response.currentStatus===key?' selected':''}" onclick="Glossary.setTodayAssessment('${key}')"><span class="certainty-icon">${key==='safe'?'✓':key==='caution'?'△':'×'}</span>${label}</button>`).join('')}</div>${response.completed||response.assessmentRevealed?`<div class="term-back">${quizTermFields(term,true)}${q[term.id]?.explanation?`<div class="term-field"><div class="term-label">解説</div><div class="term-value">${dictionaryText(q[term.id].explanation,term.id)}</div></div>`:''}${sourceBlock(term)}</div>${performanceHtml(term,response)}`:''}</section>`}
 
 function finalResultFor(response){if(response.unable)return'unable';const last=response.attempts.at(-1),correct=response.options[last]?.correct;if(correct)return response.attempts.length===1?'first_correct':'second_correct';return response.attempts.length>=2?'wrong':''}
 function saveRecentAnswer(term,response){const key=stateKey(term),s=termState(term)||{},result=finalResultFor(response);if(!result)return;const rows=[...(s.recentAnswers||[])],existing=rows.findIndex(x=>x.sessionId===sessionId&&x.termId===term.id),row={id:`${sessionId}-${term.id}`,sessionId,termId:term.id,answeredAt:dateTime(),mode:sessionStats.label,firstChoice:response.attempts[0]??null,secondChoice:response.attempts[1]??null,originalResult:response.originalResult||result,finalResult:result,unable:response.unable,unableTiming:response.unableTiming||'',automaticStatus:response.autoStatus,manualStatus:response.currentStatus||response.autoStatus,reason:response.unable?'利用者が自力回答不能を申告':''};if(existing>=0)rows[existing]={...rows[existing],...row};else rows.push(row);learning[key]={...s,recentAnswers:rows.slice(-5)};saveLearning();response.recorded=true}

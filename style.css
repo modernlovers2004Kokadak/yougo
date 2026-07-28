@@ -140,3 +140,21 @@ body{font-size:var(--font-lv4);}
 .text-enlarged .learning-details div,.text-enlarged .term-value,.text-enlarged .quiz h3,.text-enlarged .quiz-choice{font-size:20px}
 .text-enlarged .dictionary-sheet h2{font-size:24px}
 .text-enlarged .dictionary-sheet section>div,.text-enlarged .dictionary-sheet li,.text-enlarged .dictionary-sheet .mixup-comparison,.text-enlarged .dictionary-sheet .mixup-comparison *{font-size:20px}
+
+/* 辞書モーダル：見た目は維持し、本文領域だけを画面内でスクロール */
+.dictionary-sheet{
+  display:flex;
+  flex-direction:column;
+  max-height:min(82vh,680px);
+}
+.dictionary-toolbar{
+  flex:0 0 54px;
+}
+.dictionary-sheet-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
