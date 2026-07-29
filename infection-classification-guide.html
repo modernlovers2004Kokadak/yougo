@@ -523,7 +523,7 @@ button,a,summary{font:inherit}
     <dl class="disease-detail" id="diseaseDetail"></dl>
   </article>
 </div>
-<script src="infectionDiseaseData.js?v=3.0.103"></script>
+<script src="infectionDiseaseData.js?v=3.0.158"></script>
 <script>
 (()=>{
   const modal=document.getElementById('diseaseModal'),dialog=modal.querySelector('.disease-dialog'),title=document.getElementById('diseaseTitle'),detail=document.getElementById('diseaseDetail');
@@ -531,6 +531,8 @@ button,a,summary{font:inherit}
   const byName=new Map(diseases.map(item=>[item.name,item]));
   const displayText=value=>String(value||'').replace(/[Ａ-Ｚａ-ｚ０-９]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0));
   const escapeHtml=value=>displayText(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const sharedSymptoms=item=>Array.isArray(item?.symptoms)?item.symptoms:[];
+  const withoutLeadingBullet=value=>String(value||'').replace(/^(?:・\s*)+/u,'').trimStart();
   let lastFocus=null;
   function close(){modal.hidden=true;document.body.style.overflow='';lastFocus?.focus()}
   function open(item,trigger){lastFocus=trigger;title.textContent=displayText(`${item.name}｜${item.route}`);detail.innerHTML=`
@@ -538,7 +540,7 @@ button,a,summary{font:inherit}
     <dt>別名・通称</dt><dd>${escapeHtml(item.alias||'なし')}</dd>
     <dt>感染症法上の分類</dt><dd>${escapeHtml(item.classification)}</dd>
     <dt>主な感染経路</dt><dd>${escapeHtml(item.route)}</dd>
-    ${item.symptoms?`<dt>代表的・特徴的な症状</dt><dd>${escapeHtml(item.symptoms)}</dd>`:''}
+    ${sharedSymptoms(item).length?`<dt>代表的・特徴的な症状</dt><dd>${sharedSymptoms(item).map(value=>`・${escapeHtml(withoutLeadingBullet(value))}`).join('<br>')}</dd>`:''}
     ${item.exam?`<dt class="detail-emphasis">国家試験の要点</dt><dd>${escapeHtml(item.exam)}</dd>`:''}
     ${item.mixup?`<dt class="detail-emphasis">混同注意</dt><dd>${escapeHtml(item.mixup)}</dd>`:''}
     <dt>重要度</dt><dd><span class="importance ${escapeHtml(item.importance)}">${escapeHtml(item.importance)}</span></dd>`;
@@ -554,8 +556,8 @@ button,a,summary{font:inherit}
   dialog.addEventListener('touchend',e=>{if(!swipeTracking||swipeLocked)return;swipeTracking=false;const touch=e.changedTouches[0];if(!touch||!swipeStartedAtTop)return;const dx=touch.clientX-swipeStartX,dy=touch.clientY-swipeStartY;if(dy<90||dy<=Math.abs(dx)*1.25)return;swipeLocked=true;close();setTimeout(()=>{swipeLocked=false},400)},{passive:true});
 })();
 </script>
-<script src="glossaryData.js?v=3.0.103"></script>
-<script src="glossaryQuizData.js?v=3.0.103"></script>
-<script src="dictionaryPage.js?v=3.0.103"></script>
+<script src="glossaryData.js?v=3.0.158"></script>
+<script src="glossaryQuizData.js?v=3.0.158"></script>
+<script src="dictionaryPage.js?v=3.0.158"></script>
 </body>
 </html>

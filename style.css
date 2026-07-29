@@ -179,3 +179,8 @@ body{font-size:var(--font-lv4);}
   overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
 }
+
+.symptom-list{margin:0;padding:0;list-style:none}
+.symptom-list li{display:flex;align-items:flex-start;text-align:left}
+.symptom-list li>span:first-child{flex:0 0 1em}
+.symptom-list li>span:last-child{flex:1;min-width:0}
