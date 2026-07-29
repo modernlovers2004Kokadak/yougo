@@ -20,7 +20,7 @@
 .field-row>summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:13px 12px;cursor:pointer;list-style:none}
 .field-row>summary::-webkit-details-marker{display:none}
 .field-row-heading{display:grid;gap:7px;min-width:0}
-.field-row-title{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:8px;min-width:0}
+.field-row-title{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:2px;min-width:0}
 .field-row-name{font-size:var(--font-lv4);line-height:1.45;color:#123f75;white-space:nowrap}
 .field-row-description{padding-top:1px;color:var(--muted);font-size:var(--font-lv5);line-height:1.45}
 .field-row-meta{color:var(--muted);font-size:var(--font-lv5);white-space:nowrap}
