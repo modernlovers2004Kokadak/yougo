@@ -324,9 +324,15 @@ for(const item of Object.values(q)){
 data.version='3.0.108';
 quizData.version='3.0.108';
 }
-const APP_VERSION='3.0.181',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
+const APP_VERSION='3.0.183',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
 {const s=document.createElement('style');s.textContent='.mixup-comparison{text-align:left}.mixup-comparison-term{margin:0 0 16px!important}.mixup-term-name{margin:0 0 5px;font-weight:400}.mixup-comparison ul{margin:0;padding:0;list-style:none}.mixup-comparison li{display:flex;align-items:flex-start;text-align:left}.mixup-comparison li>span:first-child{flex:0 0 1em}.mixup-comparison li>span:last-child{flex:1;min-width:0}.mixup-memory{margin:20px 0 0!important}.mixup-memory>div{margin-bottom:5px}.mixup-memory p{display:flex;align-items:flex-start;margin:0;text-align:left;font-size:var(--font-lv4)}.mixup-memory p>span:first-child{flex:0 0 1em}.mixup-memory p>span:last-child{flex:1;min-width:0;font-size:var(--font-lv4)}.mixup-memory>div{font-size:var(--font-lv4)}.mixup-field>.term-value{padding-left:0}#dictionaryContent section > div[data-multiline]{text-align:left}#dictionaryContent section > ul[data-multiline]{text-align:left}.dictionary-sheet .exam-list{margin:0;padding-left:0;list-style:none}.dictionary-sheet .exam-list .exam-bullet{display:flex;align-items:flex-start;text-align:left}.dictionary-sheet .exam-list .exam-bullet>span[aria-hidden="true"]{flex:0 0 1em}.exam-bullet>.exam-line-text,.exam-bullet-line>.exam-line-text{flex:1 1 auto;min-width:0}.dictionary-sheet .exam-list .exam-plain{text-align:left}#dictionaryContent section>div{text-align:left}';document.head.append(s)}
 const flashcardTerms=data.terms;
+if(!(data.comparisonTerms||[]).some(term=>term.name==='非病原微生物')){
+ data.comparisonTerms=[...(data.comparisonTerms||[]),{id:-49,name:'非病原微生物',reading:'',category:'混同注意',definition:'通常は人に感染症を起こさない微生物',aliases:[],exam:[],mixup:[],related:[],sources:[],status:'',sourceText:'',dictionary:{comparisonOnly:true}}];
+}
+if(!(data.comparisonTerms||[]).some(term=>term.name==='常在微生物')){
+ data.comparisonTerms=[...(data.comparisonTerms||[]),{id:-50,name:'常在微生物',reading:'',category:'混同注意',definition:'皮膚や粘膜などに通常存在する微生物',aliases:['常在菌'],exam:[],mixup:[],related:[],sources:[],status:'',sourceText:'',dictionary:{comparisonOnly:true}}];
+}
 const dictionaryTerms=[...data.terms,...(data.comparisonTerms||[])];
 const termById=new Map(dictionaryTerms.map(term=>[term.id,term]));
 const countLines=text=>String(text||'').split('<br>').length;
@@ -337,25 +343,16 @@ const normalizeChoiceDictionaryText=value=>String(value||'').normalize('NFKC').r
 const choiceDictionaryTerms=new Map();
 for(const term of dictionaryTerms){
  for(const value of [term.name,...(term.aliases||[])]){const key=normalizeChoiceDictionaryText(value);if(key&&!choiceDictionaryTerms.has(key))choiceDictionaryTerms.set(key,term)}
- const definition=String(term.definition||'').replace(/^・\s*/,'').trim();
- const shortDefinition=definition.replace(new RegExp(`^${String(term.name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?:とは)?[、は]?\\s*`),'');
- for(const value of [definition,shortDefinition,q?.[term.id]?.correct]){
-  const key=normalizeChoiceDictionaryText(value);
-  if(key&&!choiceDictionaryTerms.has(key))choiceDictionaryTerms.set(key,term);
- }
 }
 function choiceDictionaryTerm(value,fallbackTerm=null){
  const normalized=normalizeChoiceDictionaryText(value);
  const exact=choiceDictionaryTerms.get(normalized);
- if(exact)return exact;
- let best=null;
- for(const match of dictionaryMatches){
-  const key=normalizeChoiceDictionaryText(match.text);
-  if(!key||key.length<2||!normalized.includes(key))continue;
-  if(!best||key.length>best.key.length)best={key,term:match.term};
- }
- return best?.term||fallbackTerm||null;
+ return exact||fallbackTerm||null;
 }
+const pointDefinitionOverrides=new Map([
+ [normalizeChoiceDictionaryText('使用濃度'),'消毒薬を実際に使用するときの濃度'],
+ [normalizeChoiceDictionaryText('消毒時間'),'消毒処理の開始から終了までに要する時間を表す一般的な用語']
+]);
 let dictionaryReturn=null,dictionaryHistory=[],dictionaryHistoryIndex=-1,dictionaryOriginScrollY=0;
 function dictionaryText(value,currentId=0){
  const template=document.createElement('template');
@@ -728,25 +725,29 @@ function exportBackup(){flushLearning();const payload={format:'riyoshi-glossary-
 async function importBackup(file){if(!file)return;try{const payload=JSON.parse(await file.text());if(!payload||payload.format!=='riyoshi-glossary-backup'||payload.version!==1||!payload.learning||typeof payload.learning!=='object'||Array.isArray(payload.learning))throw new Error('形式が一致しません');if(payload.todayBookmarks!==undefined&&!Array.isArray(payload.todayBookmarks))throw new Error('今日の10語ブックマークの形式が一致しません');const restoredTodayBookmarks=new Set((payload.todayBookmarks||[]).map(Number).filter(id=>Number.isInteger(id)&&q[id]));if(!confirm('現在の学習履歴を、選択したバックアップ内容で置き換えます。よろしいですか？'))return;learning=payload.learning;todayBookmarks=restoredTodayBookmarks;flushLearning();saveTodayBookmarks();normalizedKeys.clear();renderHome();alert('バックアップを読み込みました。')}catch(error){alert(`バックアップを読み込めませんでした。${error?.message?' '+error.message:''}`)}}
 function todayResponse(term=currentTerm()){if(todayAnswers.has(term.id))return todayAnswers.get(term.id);const question=quizData.questions?.[term.id],distractors=question?shuffle([...question.distractors]).slice(0,2):[],options=question?shuffle([{text:question.correct,correct:true},...distractors.map(text=>({text,correct:false}))]):[],response={question:question?.question||'',source:question?.source||'',options,hold:!question,attempts:[],completed:false,autoStatus:'',currentStatus:'',counted:false,roundCounted:false,originalResult:'',finalResult:'',unable:false,unableTiming:'',recorded:false};todayAnswers.set(term.id,response);persistTodaySession();return response}
 function performanceHtml(term,response){const perf=performanceFor(term),s=termState(term),recent=statusBucket(term),recentHtml=states[recent]?`<span class="recent-assessment ${recent}"><span>${recent==='safe'?'✓':recent==='caution'?'△':'×'}</span>${states[recent]}</span>`:'未評価',label={safe:'安心候補',caution:'勘',danger:'無理',none:'データなし'}[perf.level],final={safe:'安心相当',caution:'勘相当',danger:'無理相当',unlearned:'未学習'}[finalPriority(term)],notice=response.unable?'自力回答不能として記録されています':s?.status==='safe'&&['caution','danger'].includes(perf.level)?'実績では要注意':['caution','danger','unable'].includes(s?.status)&&perf.level==='safe'?'実績は改善傾向です':'';return `<details class="performance-details" open><summary>正答実績</summary><div>自己評価：${states[statusBucket(term)]||'未設定'}<br>実力評価：${label}<br><span class="recent-assessment-row">直近：${recentHtml}</span><br>1回目正解率：${perf.rate===null?'未算出':perf.rate+'％'}<br>復習優先度：${final}${notice?`<br><span class="performance-notice">${notice}</span>`:''}</div></details>`}
-function pointDefinition(term,fallback=''){return String(term?.definition||fallback||'').replace(/^・\s*/,'').trim()}
+function pointChoice(term,option){
+ const name=String(option?.text||'').trim();
+ const exactTerm=choiceDictionaryTerm(name,null);
+ const definition=pointDefinitionOverrides.get(normalizeChoiceDictionaryText(name))||String(exactTerm?.definition||'').replace(/^・\s*/,'').trim();
+ return {name:name||exactTerm?.name||term?.name||'',definition};
+}
 function pointComparisonHtml(term,response){
  const wrongIndex=response.attempts.find(index=>!response.options[index]?.correct);
  if(!response.pointOpen)return'';
  const correctOption=response.options.find(option=>option.correct);
- const correctTerm=choiceDictionaryTerm(correctOption?.text,term);
- const correctName=correctTerm?.name||term.name;
- const correctDefinition=pointDefinition(correctTerm,correctOption?.text);
+ const correctPoint=pointChoice(term,correctOption);
  let rows='';
  if(response.attempts.length===0){
-  rows=response.options.map(option=>{const optionTerm=choiceDictionaryTerm(option.text,option.correct?term:null),optionName=optionTerm?.name||option.text||'',optionDefinition=pointDefinition(optionTerm,option.text);return `<div class="point-row"><span>${esc(optionName)}</span><p>${esc(optionDefinition)}</p></div>`}).join('');
+  rows=response.options.map(option=>{const point=pointChoice(term,option);return `<div class="point-row"><span>${esc(point.name)}</span>${point.definition?`<p>${esc(point.definition)}</p>`:''}</div>`}).join('');
  }else if(wrongIndex!==undefined){
-  rows=`<div class="point-row correct"><span>${esc(correctName)}</span><p>${esc(correctDefinition)}</p></div>`;
-  const wrongOption=response.options[wrongIndex],wrongTerm=choiceDictionaryTerm(wrongOption?.text,null);
-  const wrongName=wrongTerm?.name||wrongOption?.text||'',wrongDefinition=pointDefinition(wrongTerm,wrongOption?.text);
-  rows+=`<div class="point-row selected"><span>選択：${esc(wrongName)}</span><p>${esc(wrongDefinition)}</p></div>`;
+  rows=response.options.map((option,index)=>{
+   const point=pointChoice(term,option);
+   const rowClass=option.correct?' correct':response.attempts.includes(index)?' selected':' candidate';
+   return `<div class="point-row${rowClass}"><span>${esc(point.name)}</span>${point.definition?`<p>${esc(point.definition)}</p>`:''}</div>`;
+  }).join('');
  }else{
-  rows=`<div class="point-row correct"><span>${esc(correctName)}</span><p>${esc(correctDefinition)}</p></div>`;
-  rows+=response.options.filter(option=>!option.correct).map(option=>{const candidateTerm=choiceDictionaryTerm(option.text,null),candidateName=candidateTerm?.name||option.text||'',candidateDefinition=pointDefinition(candidateTerm,option.text);return `<div class="point-row candidate"><span>${esc(candidateName)}</span><p>${esc(candidateDefinition)}</p></div>`}).join('');
+  rows=`<div class="point-row correct"><span>${esc(correctPoint.name)}</span>${correctPoint.definition?`<p>${esc(correctPoint.definition)}</p>`:''}</div>`;
+  rows+=response.options.filter(option=>!option.correct).map(option=>{const point=pointChoice(term,option);return `<div class="point-row candidate"><span>${esc(point.name)}</span>${point.definition?`<p>${esc(point.definition)}</p>`:''}</div>`}).join('');
  }
  return `<div class="point-overlay" onclick="Glossary.closePoint(event)"><section class="point-comparison" role="dialog" aria-modal="true" aria-label="選択肢の違い" onclick="event.stopPropagation()"><button type="button" class="point-close" onclick="Glossary.closePoint(event)" aria-label="閉じる">×</button>${rows}</section></div>`;
 }
