@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>理容師国家試験 用語集 Version 3.0.185</title>
+<title>理容師国家試験 用語集 Version 3.0.186</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=3.0.185">
+<link rel="stylesheet" href="style.css?v=3.0.186">
 <style>
 :root{
 --font-lv1:22px;--font-lv2:20px;--font-lv3:18px;--font-lv4:16px;--font-lv5:14px;
@@ -361,7 +361,7 @@
 <style>
 .home-term-search{padding:14px 18px 16px;border-top:1px solid #ffd3a7;background:#fff9f1}.home-term-search label{display:block;margin-bottom:8px;color:#75441b;font-size:var(--font-lv5)}.home-term-search input{width:100%;min-height:44px;padding:9px 12px;border:1px solid #ffc17e;border-radius:10px;background:#fff;color:var(--text);font:inherit;font-size:var(--font-lv4)}.term-search-results{display:grid;gap:6px;max-height:220px;margin-top:8px;overflow-y:auto}.term-search-results:empty{display:none}.term-search-result{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 11px;border:1px solid #ffd3a7;border-radius:9px;background:#fff}.term-search-result-label{display:grid;min-width:0}.term-search-result-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.term-search-result-label small{color:var(--muted);font-size:var(--font-lv5)}.term-search-result-actions{display:flex;gap:6px}.term-search-result-actions button{min-height:36px;padding:6px 9px;border:1px solid #ffc17e;border-radius:8px;background:#fff9f1;color:#75441b;font:inherit;font-size:var(--font-lv5);white-space:nowrap}.term-search-results p{margin:5px 0;color:var(--muted);font-size:var(--font-lv5)}.backup-panel{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:24px 0 8px}.backup-panel button{min-height:42px;padding:9px 15px;border:1px solid #cbd5e1;border-radius:999px;background:#fff;color:#43536b;font:inherit;font-size:var(--font-lv5)}.glossary-reset{margin-top:10px}
 .whiteboard{touch-action:pan-y}.whiteboard-scroll-position{margin-top:12px;padding:8px 2px 2px;text-align:right;color:#b95400;font-size:var(--font-lv5);line-height:1.4}.whiteboard-category-nav{position:fixed;z-index:45;right:0;bottom:0;left:0;display:flex;gap:7px;width:min(820px,100%);margin:0 auto;padding:10px 14px calc(10px + env(safe-area-inset-bottom));overflow-x:auto;border-top:1px solid #ffd0a6;background:rgba(255,249,242,.97);box-shadow:0 -6px 18px rgba(88,45,8,.14);backdrop-filter:blur(8px);scrollbar-width:thin}.whiteboard-category-nav button{flex:0 0 auto;min-height:40px;padding:8px 13px;border:1px solid #ffb56f;border-radius:999px;background:#fff;color:#a84d00;font:inherit;font-size:var(--font-lv5);white-space:nowrap}.whiteboard-category-nav button.selected{border-color:#ef7d18;background:#ef7d18;color:#fff}.whiteboard-study{padding-bottom:70px}
-@media(max-width:440px){.home-term-search{padding:12px 14px 14px}.backup-panel{gap:7px}.backup-panel button{padding-right:12px;padding-left:12px;font-size:var(--font-lv5)}.whiteboard-category-nav{padding-right:11px;padding-left:11px}.whiteboard-category-nav button{font-size:var(--font-lv5)}.whiteboard-scroll-position{font-size:var(--font-lv5)}}
+@media(max-width:440px){.home-term-search{padding:12px 14px 14px}.term-search-result{grid-template-columns:minmax(0,1fr);gap:8px;align-items:stretch}.term-search-result-label span{overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere}.term-search-result-label small{white-space:normal;overflow-wrap:anywhere}.term-search-result-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.term-search-result-actions button{width:100%;min-width:0}.backup-panel{gap:7px}.backup-panel button{padding-right:12px;padding-left:12px;font-size:var(--font-lv5)}.whiteboard-category-nav{padding-right:11px;padding-left:11px}.whiteboard-category-nav button{font-size:var(--font-lv5)}.whiteboard-scroll-position{font-size:var(--font-lv5)}}
 
 /* padding fix */
 .inf-box, .box {
@@ -497,10 +497,10 @@
 <body>
 <nav class="g-nav"><button id="glossaryBack" class="header-nav-button" type="button" onclick="Glossary.back()" aria-label="戻る" hidden>‹</button><span class="g-title">理容師国家試験 用語集</span><button id="glossaryHome" class="header-nav-button" type="button" onclick="Glossary.home()" aria-label="ホームへ戻る" hidden>⌂</button></nav>
 <main class="page" id="app"></main>
-<script src="infectionDiseaseData.js?v=3.0.185"></script>
-<script src="glossaryData.js?v=3.0.185"></script>
-<script src="glossaryQuizData.js?v=3.0.185"></script>
-<script src="glossaryApp.js?v=3.0.185"></script>
+<script src="infectionDiseaseData.js?v=3.0.186"></script>
+<script src="glossaryData.js?v=3.0.186"></script>
+<script src="glossaryQuizData.js?v=3.0.186"></script>
+<script src="glossaryApp.js?v=3.0.186"></script>
 <script>
 if('serviceWorker' in navigator){
  let controlled=Boolean(navigator.serviceWorker.controller),reloading=false;
