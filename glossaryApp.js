@@ -324,7 +324,7 @@ for(const item of Object.values(q)){
 data.version='3.0.108';
 quizData.version='3.0.108';
 }
-const APP_VERSION='3.0.177',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
+const APP_VERSION='3.0.181',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
 {const s=document.createElement('style');s.textContent='.mixup-comparison{text-align:left}.mixup-comparison-term{margin:0 0 16px!important}.mixup-term-name{margin:0 0 5px;font-weight:400}.mixup-comparison ul{margin:0;padding:0;list-style:none}.mixup-comparison li{display:flex;align-items:flex-start;text-align:left}.mixup-comparison li>span:first-child{flex:0 0 1em}.mixup-comparison li>span:last-child{flex:1;min-width:0}.mixup-memory{margin:20px 0 0!important}.mixup-memory>div{margin-bottom:5px}.mixup-memory p{display:flex;align-items:flex-start;margin:0;text-align:left;font-size:var(--font-lv4)}.mixup-memory p>span:first-child{flex:0 0 1em}.mixup-memory p>span:last-child{flex:1;min-width:0;font-size:var(--font-lv4)}.mixup-memory>div{font-size:var(--font-lv4)}.mixup-field>.term-value{padding-left:0}#dictionaryContent section > div[data-multiline]{text-align:left}#dictionaryContent section > ul[data-multiline]{text-align:left}.dictionary-sheet .exam-list{margin:0;padding-left:0;list-style:none}.dictionary-sheet .exam-list .exam-bullet{display:flex;align-items:flex-start;text-align:left}.dictionary-sheet .exam-list .exam-bullet>span[aria-hidden="true"]{flex:0 0 1em}.exam-bullet>.exam-line-text,.exam-bullet-line>.exam-line-text{flex:1 1 auto;min-width:0}.dictionary-sheet .exam-list .exam-plain{text-align:left}#dictionaryContent section>div{text-align:left}';document.head.append(s)}
 const flashcardTerms=data.terms;
 const dictionaryTerms=[...data.terms,...(data.comparisonTerms||[])];
@@ -565,7 +565,7 @@ function categoryStats(){const categoryOrder=EXAM_FIELDS.flatMap(field=>field.ca
 function startCategoryWeak(category){const categoryTerms=data.terms.filter(term=>term.category===category&&q[term.id]);if(!categoryTerms.length){showStatusMessage(`「${category}」に該当する問題はありません`);return}categoryHomeScrollY=window.scrollY;startSession(shuffle([...categoryTerms]),`${category}の全問題`,true,'','categoryAll')}
 function learningTermsForCategories(categories){const allowed=new Set(categories);return data.terms.filter(term=>allowed.has(term.category))}
 function startGroupedQuiz(categories,label){const terms=learningTermsForCategories(categories).filter(term=>q[term.id]);if(!terms.length){showStatusMessage(`「${label}」に該当する問題はありません`);return}categoryHomeScrollY=window.scrollY;startSession(shuffle([...terms]),`${label}・3択`,true,'','categoryAll')}
-function startGroupedLearning(categories,label,isReverse=false){const terms=learningTermsForCategories(categories);if(!terms.length){showStatusMessage(`「${label}」に該当する用語はありません`);return}categoryHomeScrollY=window.scrollY;beginLearningSession({entryType:LEARNING_ENTRY.DEFAULT,targetTerms:shuffle([...terms]),startIndex:0,displayMode:isReverse?'reverse':'normal',returnScreen:LEARNING_RETURN.HOME,returnScrollY:categoryHomeScrollY,returnData:{}},{idPrefix:'group',modeKey:'groupLearning',label:`${label}・${isReverse?'逆引':'用語'}`,clearCategory:true})}
+function startGroupedLearning(categories,label,isReverse=false){const terms=learningTermsForCategories(categories);if(!terms.length){showStatusMessage(`「${label}」に該当する用語はありません`);return}categoryHomeScrollY=window.scrollY;beginLearningSession({entryType:LEARNING_ENTRY.DEFAULT,targetTerms:isReverse?randomizedLearningTerms(terms):shuffle([...terms]),startIndex:0,displayMode:isReverse?'reverse':'normal',returnScreen:LEARNING_RETURN.HOME,returnScrollY:categoryHomeScrollY,returnData:{}},{idPrefix:'group',modeKey:'groupLearning',label:`${label}・${isReverse?'逆引':'用語'}`,clearCategory:true})}
 let fieldReturnIndex=-1;
 function startFieldQuiz(index,event){event?.preventDefault();event?.stopPropagation();const field=EXAM_FIELDS[Number(index)];if(!field)return;fieldReturnIndex=event?.target?.closest('.field-row')?.open?Number(index):-1;startGroupedQuiz(field.categories,field.name)}
 function startCategoryQuiz(category){if(!EXAM_FIELDS.some(field=>field.categories.includes(category)))return;startGroupedQuiz([category],category)}
@@ -665,7 +665,7 @@ function flashNext(){
     return;
   }else{
     const last=currentTerm()?.id;
-    const nextDeck=shuffle([...learningPool()]);
+    const nextDeck=reverseMode?randomizedLearningTerms(learningPool()):shuffle([...learningPool()]);
     if(nextDeck.length>1&&nextDeck[0].id===last)[nextDeck[0],nextDeck[1]]=[nextDeck[1],nextDeck[0]];
     session.push(...nextDeck);
     sessionIndex++;
@@ -790,7 +790,7 @@ function renderLearningCard(){
  const term=currentTerm(),marked=isBookmarked(term),related=relatedTerms(term),reverse=reverseMode;
  const pool=learningPool(),position=sessionIndex%pool.length+1;
  const reverseHints=term.reverseHints||[];
- const reverseHintsHtml=`<span class="reverse-hints-list">${reverseHints.map(value=>`<span class="reverse-hint-item"><span class="reverse-hint-text">${esc(value.startsWith('・')?value.slice(1).trimStart():value)}</span></span>`).join('')}</span>`;
+ const reverseHintsHtml=`<span class="reverse-hints-list">${reverseHints.map(value=>{const text=String(value??'').replace(/^\s*・\s*/u,'').replace(/[。．]+\s*$/u,'').trim();return `<span class="reverse-hint-item"><span class="reverse-hint-text">${esc(text)}</span></span>`}).join('')}</span>`;
  const linkText=value=>reverse&&!reverseRevealed?esc(value):dictionaryText(value,term.id);
  const defText=linkText(term.definition||term.meaning||'');
  const examText=term.exam?.length?term.exam.map(value=>{const bullet=value.startsWith('・'),text=bullet?value.slice(1).trimStart():value;return `<div class="${bullet?'exam-bullet-line':'exam-plain-line'}">${bullet?'<span aria-hidden="true">・</span>':''}<span class="exam-line-text">${linkText(text)}</span></div>`}).join(''):'';
@@ -850,9 +850,10 @@ function returnFromLearningContext(){
 }
 function learningField(name){return EXAM_FIELDS.find(field=>field.name===name)}
 function learningPool(fieldName=flashCategory){if(sessionModeKey==='learningBookmarks')return bookmarkedTerms();if(sessionModeKey==='statusLearning')return listTerms;if(sessionModeKey==='searchLearning')return activeSearchTerms;const field=learningField(fieldName);return flashcardTerms.filter(term=>!fieldName||field?.categories.includes(term.category))}
+function randomizedLearningTerms(terms,preferred=null){const randomized=shuffle([...new Map(terms.map(term=>[term.id,term])).values()]);if(preferred){const index=randomized.findIndex(term=>term.id===preferred.id);if(index>0)[randomized[0],randomized[index]]=[randomized[index],randomized[0]]}return randomized}
 function learningDeckKey(fieldName=flashCategory){return fieldName||'すべて'}
 function saveLearningDeckPosition(){if(!flashcardMode||!session.length)return;learningDeckStates.set(learningDeckKey(),{session,index:sessionIndex,history:[...sessionHistory],historyIndex:sessionHistoryIndex})}
-function loadLearningDeck(fieldName,preferred=null){flashCategory=fieldName;const key=learningDeckKey(),saved=learningDeckStates.get(key);if(saved&&!preferred){session=saved.session;sessionIndex=saved.index;sessionHistory=saved.history;sessionHistoryIndex=saved.historyIndex;return}session=[...learningPool()];if(preferred){const index=session.findIndex(term=>term.id===preferred.id);if(index>0)[session[0],session[index]]=[session[index],session[0]]}sessionIndex=0;sessionHistory=[0];sessionHistoryIndex=0;saveLearningDeckPosition()}
+function loadLearningDeck(fieldName,preferred=null,randomize=false){flashCategory=fieldName;const key=learningDeckKey(),saved=learningDeckStates.get(key);if(saved&&!preferred&&!randomize){session=saved.session;sessionIndex=saved.index;sessionHistory=saved.history;sessionHistoryIndex=saved.historyIndex;return}session=randomize?randomizedLearningTerms(learningPool(),preferred):[...learningPool()];if(preferred&&!randomize){const index=session.findIndex(term=>term.id===preferred.id);if(index>0)[session[0],session[index]]=[session[index],session[0]]}sessionIndex=0;sessionHistory=[0];sessionHistoryIndex=0;saveLearningDeckPosition()}
 function learningCategoryButtonsHtml(){if(sessionModeKey==='learningBookmarks')return `<div class="learning-bookmark-session-label">${reverseMode?'逆引き':'用語カード'}・ブックマーク内</div>`;if(sessionModeKey==='statusLearning')return `<div class="learning-bookmark-session-label">${esc(activeStatusListLabel)}の用語・一覧内</div>`;if(sessionModeKey==='searchLearning')return `<div class="learning-bookmark-session-label">検索結果「${esc(activeSearchQuery)}」内</div>`;return `<nav class="learning-category-nav" aria-label="科目選択"><button type="button" class="${flashCategory?'':'selected'}" onclick="Glossary.selectFlashCategory('')">すべて</button>${EXAM_FIELDS.map(field=>`<button type="button" class="${flashCategory===field.name?'selected':''}" onclick="Glossary.selectFlashCategory('${esc(field.name)}')">${esc(field.name)}</button>`).join('')}</nav>`}
 function pushSessionHistory(){
  sessionHistory.splice(sessionHistoryIndex+1);
@@ -886,14 +887,14 @@ function startLearningMode(isReverse,preferredId=0){
  if(continuingLearning)saveLearningDeckPosition();
  const preferred=flashcardTerms.find(term=>term.id===Number(preferredId))||null;
  const preferredField=preferred?EXAM_FIELDS.find(field=>field.categories.includes(preferred.category))?.name||'':flashCategory;
- loadLearningDeck(preferredField,preferred);
+ loadLearningDeck(preferredField,preferred,isReverse);
  beginLearningSession({entryType:LEARNING_ENTRY.DEFAULT,targetTerms:session,startIndex:sessionIndex,displayMode:isReverse?'reverse':'normal',returnScreen:LEARNING_RETURN.HOME,returnScrollY:0,returnData:{category:flashCategory}},{idPrefix:'fc',modeKey:'',label:isReverse?'逆引':'用語',preserveHistory:true,clearCategory:false});
 }
 startFlashcards=function(preferredId=0){startLearningMode(false,preferredId)}
 const renderSessionLearningBase=renderSession;
 renderSession=function(){if(flashcardMode){renderLearningCard();return}renderSessionLearningBase()}
 function startReverse(){startLearningMode(true)}
-selectFlashCategory=function(fieldName){if(fieldName!==''&&!learningField(fieldName))return;const pool=learningPool(fieldName);if(!pool.length){showStatusMessage(`「${fieldName}」に該当する用語はありません`);return}saveLearningDeckPosition();loadLearningDeck(fieldName);reverseRevealed=false;prepareTerm();renderSession();scrollTo(0,0)}
+selectFlashCategory=function(fieldName){if(fieldName!==''&&!learningField(fieldName))return;const pool=learningPool(fieldName);if(!pool.length){showStatusMessage(`「${fieldName}」に該当する用語はありません`);return}saveLearningDeckPosition();loadLearningDeck(fieldName,null,reverseMode);reverseRevealed=false;prepareTerm();renderSession();scrollTo(0,0)}
 function showRelated(){const list=document.querySelector('.related-list');if(list){list.hidden=!list.hidden}else showStatusMessage('関連語なし')}
 function openRelated(id){const term=termById.get(id);if(!term)return;session=[term];sessionIndex=0;reverseMode=false;renderLearningCard()}
 function checkThreeChoice(){const term=currentTerm();if(!q[term.id]){showStatusMessage('対応する問題はありません');return}reverseMode=false;startSession([term],'3択で確認',true,'','termCheck')}
