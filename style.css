@@ -118,10 +118,10 @@ body{font-size:var(--font-lv4);}
 .status-list-count{margin:0 0 10px;text-align:right;color:#647084;font-size:var(--font-lv5)}
 .today-study-card{margin-bottom:calc(80px + env(safe-area-inset-bottom))}
 .today-session-navigation{position:fixed;z-index:45;right:0;bottom:0;left:0;grid-template-columns:1fr 1fr;width:min(820px,100%);margin:0 auto;padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #c9d8ee;background:#f6faff;box-shadow:0 -6px 18px rgba(16,35,63,.12)}
+.today-session-navigation.has-point{grid-template-columns:minmax(0,1fr) minmax(86px,.72fr) minmax(0,1fr)}
 .today-session-navigation button{min-height:50px}.today-session-navigation button:first-child{border-color:#2580ed;background:linear-gradient(135deg,#3fa9f5 0%,#246de1 100%);color:#fff}.today-session-navigation .session-next{border-color:#2580ed;background:linear-gradient(135deg,#3fa9f5 0%,#246de1 100%)}
 @media(max-width:440px){.today-session-navigation{padding-right:11px;padding-left:11px}}
-.today-session-navigation{overflow:visible}
-.today-session-navigation .point-trigger{position:fixed;z-index:46;right:auto;bottom:calc(80px + env(safe-area-inset-bottom));left:max(8px,calc(50% - 402px));display:grid;place-items:center;width:72px;height:72px;min-height:72px;padding:0;border:0;border-radius:50%;background:#f58a00;color:#fff;font-size:var(--font-lv5);font-weight:600;line-height:1;box-shadow:0 3px 9px rgba(118,66,4,.22)}
+.today-session-navigation .point-trigger{display:grid;place-items:center;min-width:0;min-height:50px;padding:0 8px;border:1px solid #d98218;border-radius:10px;background:#d98218;color:#fff;font-size:var(--font-lv5);font-weight:400;line-height:1;white-space:nowrap}
 .point-overlay{position:fixed;z-index:90;inset:0;padding:calc(env(safe-area-inset-top) + 8px) 11px 11px;background:transparent}
 .point-comparison{position:relative;width:min(798px,100%);max-height:calc(100dvh - env(safe-area-inset-top) - 19px);margin:0 auto;padding:14px 42px 14px 16px;overflow-y:auto;border:0;border-radius:16px;background:#fffdf8;box-shadow:0 7px 24px rgba(25,42,68,.25);overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 .point-close{position:absolute;top:7px;right:8px;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:transparent;color:#697384;font:inherit;font-size:var(--font-lv2);line-height:1}
