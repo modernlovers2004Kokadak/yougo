@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>理容師国家試験 用語集 Version 3.0.176</title>
+<title>理容師国家試験 用語集 Version 3.0.177</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=3.0.176">
+<link rel="stylesheet" href="style.css?v=3.0.177">
 <style>
 :root{
 --font-lv1:22px;--font-lv2:20px;--font-lv3:18px;--font-lv4:16px;--font-lv5:14px;
@@ -29,7 +29,7 @@
 .learning-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
 .learning-mode-card{position:relative;display:grid;place-items:center;align-content:center;gap:12px;min-width:0;min-height:132px;padding:14px 6px;border:0;border-radius:20px;color:#fff;font:inherit;box-shadow:0 6px 16px rgba(16,35,63,.13)}
 .learning-mode-card>span{font-size:var(--font-exception-home-icon);line-height:1}.learning-mode-card strong{font-size:var(--font-lv3);font-weight:500;white-space:nowrap}.learning-mode-card em{position:absolute;top:10px;right:10px;display:grid;place-items:center;min-width:25px;height:25px;padding:0 6px;border-radius:999px;background:#fff;color:#e66300;font-size:var(--font-lv5);font-style:normal;font-weight:400}
-.term-mode{background:linear-gradient(135deg,#1678ed,#0755bf)}.reverse-mode{background:linear-gradient(135deg,#8358d1,#4c2c9b)}.bookmark-mode{background:linear-gradient(135deg,#ff941f,#ed6500)}
+.term-mode{background:linear-gradient(135deg,#1678ed,#0755bf)}.reverse-mode{background:linear-gradient(135deg,#8358d1,#4c2c9b)}.bookmark-mode{background:var(--bookmark-orange-gradient)}
 .learning-card{position:relative;height:calc(100svh - 154px);min-height:0;overflow:hidden;border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.07)}
 .learning-card>header{position:relative;z-index:2;height:68px;border-bottom:1px solid var(--line);background:#fff}.learning-card>header>span{position:absolute;top:18px;left:50%;transform:translateX(-50%);padding:8px 15px;border-radius:10px;background:#ef8a2f;color:#fff;font-size:var(--font-exception-caption);white-space:nowrap}.learning-card>header>em{position:absolute;top:27px;right:18px;color:var(--muted);font-size:var(--font-exception-xs);font-style:normal}
 .learning-card-scroll{height:calc(100% - 68px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -497,10 +497,10 @@
 <body>
 <nav class="g-nav"><button id="glossaryBack" class="header-nav-button" type="button" onclick="Glossary.back()" aria-label="戻る" hidden>‹</button><span class="g-title">理容師国家試験 用語集</span><button id="glossaryHome" class="header-nav-button" type="button" onclick="Glossary.home()" aria-label="ホームへ戻る" hidden>⌂</button></nav>
 <main class="page" id="app"></main>
-<script src="glossaryData.js?v=3.0.176"></script>
-<script src="glossaryQuizData.js?v=3.0.176"></script>
-<script src="infectionDiseaseData.js?v=3.0.176"></script>
-<script src="glossaryApp.js?v=3.0.176"></script>
+<script src="glossaryData.js?v=3.0.177"></script>
+<script src="glossaryQuizData.js?v=3.0.177"></script>
+<script src="infectionDiseaseData.js?v=3.0.177"></script>
+<script src="glossaryApp.js?v=3.0.177"></script>
 <script>
 if('serviceWorker' in navigator){
  let controlled=Boolean(navigator.serviceWorker.controller),reloading=false;

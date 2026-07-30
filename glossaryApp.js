@@ -324,7 +324,7 @@ for(const item of Object.values(q)){
 data.version='3.0.108';
 quizData.version='3.0.108';
 }
-const APP_VERSION='3.0.176',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
+const APP_VERSION='3.0.177',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
 {const s=document.createElement('style');s.textContent='.mixup-comparison{text-align:left}.mixup-comparison-term{margin:0 0 16px!important}.mixup-term-name{margin:0 0 5px;font-weight:400}.mixup-comparison ul{margin:0;padding:0;list-style:none}.mixup-comparison li{display:flex;align-items:flex-start;text-align:left}.mixup-comparison li>span:first-child{flex:0 0 1em}.mixup-comparison li>span:last-child{flex:1;min-width:0}.mixup-memory{margin:20px 0 0!important}.mixup-memory>div{margin-bottom:5px}.mixup-memory p{display:flex;align-items:flex-start;margin:0;text-align:left;font-size:var(--font-lv4)}.mixup-memory p>span:first-child{flex:0 0 1em}.mixup-memory p>span:last-child{flex:1;min-width:0;font-size:var(--font-lv4)}.mixup-memory>div{font-size:var(--font-lv4)}.mixup-field>.term-value{padding-left:0}#dictionaryContent section > div[data-multiline]{text-align:left}#dictionaryContent section > ul[data-multiline]{text-align:left}.dictionary-sheet .exam-list{margin:0;padding-left:0;list-style:none}.dictionary-sheet .exam-list .exam-bullet{display:flex;align-items:flex-start;text-align:left}.dictionary-sheet .exam-list .exam-bullet>span[aria-hidden="true"]{flex:0 0 1em}.exam-bullet>.exam-line-text,.exam-bullet-line>.exam-line-text{flex:1 1 auto;min-width:0}.dictionary-sheet .exam-list .exam-plain{text-align:left}#dictionaryContent section>div{text-align:left}';document.head.append(s)}
 const flashcardTerms=data.terms;
 const dictionaryTerms=[...data.terms,...(data.comparisonTerms||[])];
@@ -740,13 +740,13 @@ function pointComparisonHtml(term,response){
  if(response.attempts.length===0){
   rows=response.options.map(option=>{const optionTerm=choiceDictionaryTerm(option.text,option.correct?term:null),optionName=optionTerm?.name||option.text||'',optionDefinition=pointDefinition(optionTerm,option.text);return `<div class="point-row"><span>${esc(optionName)}</span><p>${esc(optionDefinition)}</p></div>`}).join('');
  }else if(wrongIndex!==undefined){
-  rows=`<div class="point-row correct"><span>正解：${esc(correctName)}</span><p>${esc(correctDefinition)}</p></div>`;
+  rows=`<div class="point-row correct"><span>${esc(correctName)}</span><p>${esc(correctDefinition)}</p></div>`;
   const wrongOption=response.options[wrongIndex],wrongTerm=choiceDictionaryTerm(wrongOption?.text,null);
   const wrongName=wrongTerm?.name||wrongOption?.text||'',wrongDefinition=pointDefinition(wrongTerm,wrongOption?.text);
   rows+=`<div class="point-row selected"><span>選択：${esc(wrongName)}</span><p>${esc(wrongDefinition)}</p></div>`;
  }else{
-  rows=`<div class="point-row correct"><span>正解：${esc(correctName)}</span><p>${esc(correctDefinition)}</p></div>`;
-  rows+=response.options.filter(option=>!option.correct).map(option=>{const candidateTerm=choiceDictionaryTerm(option.text,null),candidateName=candidateTerm?.name||option.text||'',candidateDefinition=pointDefinition(candidateTerm,option.text);return `<div class="point-row candidate"><span>誤答候補：${esc(candidateName)}</span><p>${esc(candidateDefinition)}</p></div>`}).join('');
+  rows=`<div class="point-row correct"><span>${esc(correctName)}</span><p>${esc(correctDefinition)}</p></div>`;
+  rows+=response.options.filter(option=>!option.correct).map(option=>{const candidateTerm=choiceDictionaryTerm(option.text,null),candidateName=candidateTerm?.name||option.text||'',candidateDefinition=pointDefinition(candidateTerm,option.text);return `<div class="point-row candidate"><span>${esc(candidateName)}</span><p>${esc(candidateDefinition)}</p></div>`}).join('');
  }
  return `<div class="point-overlay" onclick="Glossary.closePoint(event)"><section class="point-comparison" role="dialog" aria-modal="true" aria-label="選択肢の違い" onclick="event.stopPropagation()"><button type="button" class="point-close" onclick="Glossary.closePoint(event)" aria-label="閉じる">×</button>${rows}</section></div>`;
 }
