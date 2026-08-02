@@ -324,7 +324,7 @@ for(const item of Object.values(q)){
 data.version='3.0.108';
 quizData.version='3.0.108';
 }
-const APP_VERSION='3.0.187',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
+const APP_VERSION='3.0.188',STORAGE_KEY='riyoshi_glossary_learning_v1',TODAY_BOOKMARK_KEY='riyoshi_glossary_today_bookmarks_v1',TEXT_SCALE_KEY='riyoshi_glossary_text_enlarged_v1',TODAY_META_KEY='__today10',ROUND_META_KEY='__roundProgress',CATEGORY_ROUND_KEY='__categoryRounds',REVIEW_DATE='2026-07-17';
 {const s=document.createElement('style');s.textContent='.mixup-comparison{text-align:left}.mixup-comparison-term{margin:0 0 16px!important}.mixup-term-name{margin:0 0 5px;font-weight:400}.mixup-comparison ul{margin:0;padding:0;list-style:none}.mixup-comparison li{display:flex;align-items:flex-start;text-align:left}.mixup-comparison li>span:first-child{flex:0 0 1em}.mixup-comparison li>span:last-child{flex:1;min-width:0}.mixup-memory{margin:20px 0 0!important}.mixup-memory>div{margin-bottom:5px}.mixup-memory p{display:flex;align-items:flex-start;margin:0;text-align:left;font-size:var(--font-lv4)}.mixup-memory p>span:first-child{flex:0 0 1em}.mixup-memory p>span:last-child{flex:1;min-width:0;font-size:var(--font-lv4)}.mixup-memory>div{font-size:var(--font-lv4)}.mixup-field>.term-value{padding-left:0}#dictionaryContent section > div[data-multiline]{text-align:left}#dictionaryContent section > ul[data-multiline]{text-align:left}.dictionary-sheet .exam-list{margin:0;padding-left:0;list-style:none}.dictionary-sheet .exam-list .exam-bullet{display:flex;align-items:flex-start;text-align:left}.dictionary-sheet .exam-list .exam-bullet>span[aria-hidden="true"]{flex:0 0 1em}.exam-bullet>.exam-line-text,.exam-bullet-line>.exam-line-text{flex:1 1 auto;min-width:0}.dictionary-sheet .exam-list .exam-plain{text-align:left}#dictionaryContent section>div{text-align:left}';document.head.append(s)}
 const flashcardTerms=data.terms;
 if(!(data.comparisonTerms||[]).some(term=>term.name==='非病原微生物')){
@@ -572,13 +572,13 @@ function recordCategoryRoundEvaluation(term,status){if(!term||!states[status]||!
 function latestAnswer(term){const rows=termState(term)?.recentAnswers||[];return rows.length?rows[rows.length-1]:null}
 function statusBucket(term){const status=termState(term)?.status;return status==='unable'?'danger':states[status]?status:'unlearned'}
 const EXAM_FIELDS=Object.freeze([
- {name:'関係法規・制度',description:'法律・資格制度の知識',categories:['消費者基本法']},
- {name:'衛生管理',description:'衛生・感染症予防の知識',categories:['感染症法','感染症予防','消毒法','公衆衛生','地域保健法','健康増進法']},
- {name:'保健',description:'人体・皮膚の医学的基礎知識',categories:['皮膚','毛髪']},
+ {name:'関係法規・制度',description:'法律・資格制度の知識',categories:['消費者基本法','関係法規']},
+ {name:'衛生管理',description:'衛生・感染症予防の知識',categories:['感染症法','感染症予防','消毒法','公衆衛生','環境衛生','地域保健法','健康増進法']},
+ {name:'保健',description:'人体・皮膚の医学的基礎知識',categories:['人体','皮膚','毛髪'],sharedTermIds:[482]},
  {name:'香粧品化学',description:'化粧品・薬剤の成分知識',categories:['香粧品成分']},
  {name:'文化論',description:'歴史や文化的背景の知識',categories:['文化論']},
  {name:'運営管理',description:'経営・運営していく上で必要な知識',categories:['運営管理'],sharedTermIds:[287,365,370,390]},
- {name:'理容技術理論',description:'カットやパーマなど技術の理論',categories:['カッティング']}
+ {name:'理容技術理論',description:'カットやパーマなど技術の理論',categories:['カッティング','理容技術','色彩']}
 ]);
 function categoryStats(){const categoryOrder=EXAM_FIELDS.flatMap(field=>field.categories),byCategory=new Map();data.terms.forEach(term=>{if(!byCategory.has(term.category))byCategory.set(term.category,[]);byCategory.get(term.category).push(term)});const rows=[...byCategory.entries()].map(([category,terms])=>({category,terms,...categoryCurrentBreakdown(category,terms),round:categoryRoundData(category)}));rows.sort((a,b)=>categoryOrder.indexOf(a.category)-categoryOrder.indexOf(b.category));return rows}
 function startCategoryWeak(category){const categoryTerms=data.terms.filter(term=>term.category===category&&q[term.id]);if(!categoryTerms.length){showStatusMessage(`「${category}」に該当する問題はありません`);return}categoryHomeScrollY=window.scrollY;startSession(shuffle([...categoryTerms]),`${category}の全問題`,true,'','categoryAll')}
@@ -875,7 +875,7 @@ function returnFromLearningContext(){
  }
 }
 function learningField(name){return EXAM_FIELDS.find(field=>field.name===name)}
-function learningPool(fieldName=flashCategory){if(sessionModeKey==='learningBookmarks')return bookmarkedTerms();if(sessionModeKey==='statusLearning')return listTerms;if(sessionModeKey==='searchLearning')return activeSearchTerms;const field=learningField(fieldName);return flashcardTerms.filter(term=>!fieldName||field?.categories.includes(term.category))}
+function learningPool(fieldName=flashCategory){if(sessionModeKey==='learningBookmarks')return bookmarkedTerms();if(sessionModeKey==='statusLearning')return listTerms;if(sessionModeKey==='searchLearning')return activeSearchTerms;const field=learningField(fieldName),shared=new Set(field?.sharedTermIds||[]);return flashcardTerms.filter(term=>!fieldName||field?.categories.includes(term.category)||shared.has(Number(term.id)))}
 function randomizedLearningTerms(terms,preferred=null){const randomized=shuffle([...new Map(terms.map(term=>[term.id,term])).values()]);if(preferred){const index=randomized.findIndex(term=>term.id===preferred.id);if(index>0)[randomized[0],randomized[index]]=[randomized[index],randomized[0]]}return randomized}
 function learningDeckKey(fieldName=flashCategory){return fieldName||'すべて'}
 function saveLearningDeckPosition(){if(!flashcardMode||!session.length)return;learningDeckStates.set(learningDeckKey(),{session,index:sessionIndex,history:[...sessionHistory],historyIndex:sessionHistoryIndex})}
@@ -912,7 +912,7 @@ function startLearningMode(isReverse,preferredId=0){
  const continuingLearning=flashcardMode;
  if(continuingLearning)saveLearningDeckPosition();
  const preferred=flashcardTerms.find(term=>term.id===Number(preferredId))||null;
- const preferredField=preferred?EXAM_FIELDS.find(field=>field.categories.includes(preferred.category))?.name||'':flashCategory;
+ const preferredField=preferred?EXAM_FIELDS.find(field=>field.categories.includes(preferred.category)||(field.sharedTermIds||[]).includes(Number(preferred.id)))?.name||'':flashCategory;
  loadLearningDeck(preferredField,preferred,isReverse);
  beginLearningSession({entryType:LEARNING_ENTRY.DEFAULT,targetTerms:session,startIndex:sessionIndex,displayMode:isReverse?'reverse':'normal',returnScreen:LEARNING_RETURN.HOME,returnScrollY:0,returnData:{category:flashCategory}},{idPrefix:'fc',modeKey:'',label:isReverse?'逆引':'用語',preserveHistory:true,clearCategory:false});
 }
